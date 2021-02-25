@@ -16,6 +16,8 @@ defmodule Score.DataCase do
 
   use ExUnit.CaseTemplate
 
+  alias Ecto.Adapters.SQL.Sandbox
+
   using do
     quote do
       alias Score.Repo
@@ -28,10 +30,10 @@ defmodule Score.DataCase do
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Score.Repo)
+    :ok = Sandbox.checkout(Score.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(Score.Repo, {:shared, self()})
+      Sandbox.mode(Score.Repo, {:shared, self()})
     end
 
     :ok
