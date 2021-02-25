@@ -1,15 +1,22 @@
 defmodule ScoreWeb.StatisticLive do
+  @moduledoc """
+    This module listen all events sent from statistics page
+  """
   use ScoreWeb, :live_view
   alias Score.Statistics
 
   def mount(_params, _session, socket) do
-    new_socket = assign(socket, :statistics, Statistics.get_nfl_rushing_statistics())
+    new_socket = assign(socket, statistics: Statistics.get_nfl_rushing_statistics(), term: "")
     {:ok, new_socket}
   end
 
   def render(assigns) do
     ~L"""
     <h1> NFL Players Statistics </h1>
+    <form autocomplete="off" phx-change="player_name">
+      <span>Filter By Player</span>
+      <input name="term" value="<%= @term %>"> </input>
+    </form>
     <table>
       <thead>
         <tr>
@@ -53,5 +60,28 @@ defmodule ScoreWeb.StatisticLive do
       </tbody>
     </table>
     """
+  end
+
+  def handle_event("player_name", %{"term" => term}, %{assigns: %{term: old_term}} = socket) do
+    new_socket =
+      socket
+      |> update(:statistics, &filter_player_name(&1, old_term, term))
+      |> assign(:term, term)
+
+    {:noreply, new_socket}
+  end
+
+  defp filter_player_name(data, old_term, term) do
+    data
+    |> get_statistics_to_filter(old_term, term)
+    |> Enum.filter(fn %{"Player" => name} -> String.contains?(name, term) end)
+  end
+
+  defp get_statistics_to_filter(current_statistics, old_term, term) do
+    if String.length(term) > String.length(old_term) do
+      current_statistics
+    else
+      Statistics.get_nfl_rushing_statistics()
+    end
   end
 end
