@@ -1,4 +1,6 @@
 defmodule ScoreWeb.PageLive do
+  @moduledoc false
+
   use ScoreWeb, :live_view
 
   @impl true
