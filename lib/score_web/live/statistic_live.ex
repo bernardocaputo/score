@@ -6,13 +6,35 @@ defmodule ScoreWeb.StatisticLive do
   alias Score.Statistics
 
   def mount(_params, _session, socket) do
-    new_socket = assign(socket, statistics: Statistics.get_nfl_rushing_statistics(), term: "")
+    if connected?(socket) do
+      :timer.send_interval(1000, self(), :timer)
+    end
+
+    new_socket =
+      assign(socket,
+        statistics: Statistics.get_nfl_rushing_statistics(),
+        term: "",
+        timer: get_time()
+      )
+
     {:ok, new_socket}
+  end
+
+  def handle_info(:timer, socket) do
+    new_socket = assign(socket, :timer, get_time())
+    {:noreply, new_socket}
+  end
+
+  defp get_time() do
+    {_erl_date, erl_time} = :calendar.local_time()
+    {:ok, time} = Time.from_erl(erl_time)
+    Time.to_string(time)
   end
 
   def render(assigns) do
     ~L"""
     <h1> NFL Players Statistics </h1>
+    <p> <%= @timer %> </p>
     <form autocomplete="off" phx-change="player_name">
       <span>Filter By Player</span>
       <input name="term" value="<%= @term %>"> </input>
