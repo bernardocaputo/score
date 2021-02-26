@@ -72,9 +72,14 @@ defmodule ScoreWeb.StatisticLive do
   end
 
   defp filter_player_name(data, old_term, term) do
+    term_downcased = String.downcase(term)
+
     data
     |> get_statistics_to_filter(old_term, term)
-    |> Enum.filter(fn %{"Player" => name} -> String.contains?(name, term) end)
+    |> Enum.filter(fn %{"Player" => name} ->
+      name_downcased = String.downcase(name)
+      String.contains?(name_downcased, term_downcased)
+    end)
   end
 
   defp get_statistics_to_filter(current_statistics, old_term, term) do
