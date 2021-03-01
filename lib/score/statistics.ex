@@ -38,4 +38,35 @@ defmodule Score.Statistics do
   def get_nfl_rushing_statistics do
     @json_data
   end
+
+  def suggest_players(term) do
+    term_downcased = String.downcase(term)
+
+    get_nfl_rushing_statistics()
+    |> Stream.filter(fn %{"Player" => name} ->
+      name_downcased = String.downcase(name)
+      String.starts_with?(name_downcased, term_downcased)
+    end)
+    |> Stream.map(fn %{"Player" => name} -> name end)
+    |> Enum.take(10)
+  end
+
+  def filter_player_name(data, old_term, term) do
+    term_downcased = String.downcase(term)
+
+    data
+    |> get_statistics_to_filter(old_term, term)
+    |> Stream.filter(fn %{"Player" => name} ->
+      name_downcased = String.downcase(name)
+      String.contains?(name_downcased, term_downcased)
+    end)
+  end
+
+  defp get_statistics_to_filter(current_statistics, old_term, term) do
+    if String.length(term) > String.length(old_term) do
+      current_statistics
+    else
+      get_nfl_rushing_statistics()
+    end
+  end
 end
