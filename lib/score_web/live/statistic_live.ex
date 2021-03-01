@@ -38,7 +38,7 @@ defmodule ScoreWeb.StatisticLive do
     <p> <%= @timer %> </p>
     <form autocomplete="off" phx-submit="player-search" phx-change="suggest-player">
       <span>Filter By Player</span>
-      <input placeholder="Player Name" autocomplete="off" phx-debounce="1000" type="text" name="term" value="<%= @term %>" list="matches"><%= @term %></input>
+      <input placeholder="Player Name" autocomplete="off" phx-debounce="1000" type="text" name="term" value="<%= @term %>" list="matches"></input>
       <button type="submit">Search</button>
     </form>
 
@@ -93,11 +93,19 @@ defmodule ScoreWeb.StatisticLive do
     """
   end
 
-  def handle_event("player-search", %{"term" => term}, %{assigns: %{term: old_term}} = socket) do
+  def handle_event("player-search", %{"term" => term}, socket) do
     new_socket =
       socket
-      |> update(:statistics, &Statistics.filter_player_name(&1, old_term, term))
+      |> assign(:statistics, Statistics.player_search(term))
       |> assign(:term, term)
+
+    {:noreply, new_socket}
+  end
+
+  def handle_event("suggest-player", %{"term" => ""}, socket) do
+    new_socket =
+      socket
+      |> assign(:statistics, Statistics.get_nfl_rushing_statistics())
 
     {:noreply, new_socket}
   end
