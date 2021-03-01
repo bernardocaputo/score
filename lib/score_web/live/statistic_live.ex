@@ -14,6 +14,7 @@ defmodule ScoreWeb.StatisticLive do
       assign(socket,
         statistics: Statistics.get_nfl_rushing_statistics(),
         term: "",
+        matches: [],
         timer: get_time()
       )
 
@@ -35,10 +36,18 @@ defmodule ScoreWeb.StatisticLive do
     ~L"""
     <h1> NFL Players Statistics </h1>
     <p> <%= @timer %> </p>
-    <form autocomplete="off" phx-change="player_name">
+    <form autocomplete="off" phx-submit="player-search" phx-change="suggest-player">
       <span>Filter By Player</span>
-      <input name="term" value="<%= @term %>"> </input>
+      <input placeholder="Player Name" autocomplete="off" phx-debounce="1000" type="text" name="term" value="<%= @term %>" list="matches"><%= @term %></input>
+      <button type="submit">Search</button>
     </form>
+
+    <datalist id="matches">
+      <%= for match <- @matches do %>
+        <option value="<%= match %>"><%= match %></option>
+      <% end %>
+    </datalist>
+
     <table>
       <thead>
         <tr>
@@ -84,31 +93,20 @@ defmodule ScoreWeb.StatisticLive do
     """
   end
 
-  def handle_event("player_name", %{"term" => term}, %{assigns: %{term: old_term}} = socket) do
+  def handle_event("player-search", %{"term" => term}, %{assigns: %{term: old_term}} = socket) do
     new_socket =
       socket
-      |> update(:statistics, &filter_player_name(&1, old_term, term))
+      |> update(:statistics, &Statistics.filter_player_name(&1, old_term, term))
       |> assign(:term, term)
 
     {:noreply, new_socket}
   end
 
-  defp filter_player_name(data, old_term, term) do
-    term_downcased = String.downcase(term)
+  def handle_event("suggest-player", %{"term" => term}, socket) do
+    new_socket =
+      socket
+      |> assign(:matches, Statistics.suggest_players(term))
 
-    data
-    |> get_statistics_to_filter(old_term, term)
-    |> Enum.filter(fn %{"Player" => name} ->
-      name_downcased = String.downcase(name)
-      String.contains?(name_downcased, term_downcased)
-    end)
-  end
-
-  defp get_statistics_to_filter(current_statistics, old_term, term) do
-    if String.length(term) > String.length(old_term) do
-      current_statistics
-    else
-      Statistics.get_nfl_rushing_statistics()
-    end
+    {:noreply, new_socket}
   end
 end
