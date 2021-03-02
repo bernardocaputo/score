@@ -105,7 +105,7 @@ defmodule ScoreWeb.StatisticLive do
         _url,
         %{assigns: %{term: term, statistics: statistics}} = socket
       ) do
-    sort_options = %{sort_by: sort_by, sort_order: toggle_sort_order(sort_order)}
+    sort_options = %{sort_by: sort_by, sort_order: sort_order}
 
     new_socket =
       socket
@@ -115,9 +115,6 @@ defmodule ScoreWeb.StatisticLive do
     {:noreply, new_socket}
   end
 
-  defp toggle_sort_order("asc"), do: "desc"
-  defp toggle_sort_order("desc"), do: "asc"
-
   defp sort_link(socket, text, sort_options, term) do
     live_patch(text,
       to:
@@ -125,11 +122,14 @@ defmodule ScoreWeb.StatisticLive do
           socket,
           __MODULE__,
           sort_by: sort_options.sort_by,
-          sort_order: sort_options.sort_order,
+          sort_order: toggle_sort_order(sort_options.sort_order),
           term: term
         )
     )
   end
+
+  defp toggle_sort_order("asc"), do: "desc"
+  defp toggle_sort_order("desc"), do: "asc"
 
   def handle_params(_, _, socket), do: {:noreply, socket}
 
