@@ -15,6 +15,7 @@ defmodule ScoreWeb.StatisticLive do
         statistics: Statistics.get_nfl_rushing_statistics(),
         term: "",
         matches: [],
+        sort_options: %{sort_order: "asc", sort_by: nil},
         timer: get_time()
       )
 
@@ -26,7 +27,7 @@ defmodule ScoreWeb.StatisticLive do
     {:noreply, new_socket}
   end
 
-  defp get_time() do
+  defp get_time do
     {_erl_date, erl_time} = :calendar.local_time()
     {:ok, time} = Time.from_erl(erl_time)
     Time.to_string(time)
@@ -57,10 +58,16 @@ defmodule ScoreWeb.StatisticLive do
           <th>Att</th>
           <th>Att/G</th>
           <th>Avg</th>
-          <th>Yds</th>
+          <th>
+            <%= sort_link(@socket, "Yds", %{@sort_options | sort_by: "Yds"}, @term) %>
+          </th>
           <th>Yds/G</th>
-          <th>TD</th>
-          <th>Lng</th>
+          <th>
+            <%= sort_link(@socket, "TD", %{@sort_options | sort_by: "TD"}, @term) %>
+          </th>
+          <th>
+          <%= sort_link(@socket, "Lng", %{@sort_options | sort_by: "Lng"}, @term) %>
+          </th>
           <th>1st%</th>
           <th>1st</th>
           <th>20</th>
@@ -93,11 +100,45 @@ defmodule ScoreWeb.StatisticLive do
     """
   end
 
-  def handle_event("player-search", %{"term" => term}, socket) do
+  def handle_params(
+        %{"sort_by" => sort_by, "sort_order" => sort_order} = params,
+        _url,
+        %{assigns: %{term: term, statistics: statistics}} = socket
+      ) do
+    sort_options = %{sort_by: sort_by, sort_order: toggle_sort_order(sort_order)}
+
+    new_socket =
+      socket
+      |> assign(:sort_options, sort_options)
+      |> assign(:statistics, Statistics.player_search(term, statistics, sort_options))
+
+    {:noreply, new_socket}
+  end
+
+  defp toggle_sort_order("asc"), do: "desc"
+  defp toggle_sort_order("desc"), do: "asc"
+
+  defp sort_link(socket, text, sort_options, term) do
+    live_patch(text,
+      to:
+        Routes.live_path(
+          socket,
+          __MODULE__,
+          sort_by: sort_options.sort_by,
+          sort_order: sort_options.sort_order,
+          term: term
+        )
+    )
+  end
+
+  def handle_params(_, _, socket), do: {:noreply, socket}
+
+  def handle_event("player-search", %{"term" => term} = params, socket) do
     new_socket =
       socket
       |> assign(:statistics, Statistics.player_search(term))
       |> assign(:term, term)
+      |> push_patch(to: Routes.live_path(socket, __MODULE__, term: term))
 
     {:noreply, new_socket}
   end

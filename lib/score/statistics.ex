@@ -51,13 +51,43 @@ defmodule Score.Statistics do
     |> Enum.take(10)
   end
 
-  def player_search(term) do
+  def player_search(term, data \\ get_nfl_rushing_statistics(), options \\ %{}) do
     term_downcased = String.downcase(term)
 
-    get_nfl_rushing_statistics()
+    data
     |> Stream.filter(fn %{"Player" => name} ->
       name_downcased = String.downcase(name)
       String.contains?(name_downcased, term_downcased)
     end)
+    |> sort_result(options)
   end
+
+  defp sort_result(result, options) when options == %{}, do: result
+
+  defp sort_result(result, %{sort_by: sort_by, sort_order: sort_order}) do
+    result
+    |> format_data(sort_by)
+    |> Enum.sort_by(& &1["#{sort_by}"], :"#{sort_order}")
+  end
+
+  defp format_data(data, "Yds") do
+    data
+    |> Enum.map(fn %{"Yds" => yds} = x ->
+      new_yds =
+        try do
+          yds |> String.replace(",", "") |> String.to_integer()
+        rescue
+          _ ->
+            yds
+        end
+
+      Map.put(x, "Yds", new_yds)
+    end)
+  end
+
+  # TO DO How to handle Lng sort?
+  # defp format_data(data, "Lng") do
+  # end
+
+  defp format_data(data, _), do: data
 end
