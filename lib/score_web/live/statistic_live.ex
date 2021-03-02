@@ -19,7 +19,8 @@ defmodule ScoreWeb.StatisticLive do
         timer: get_time()
       )
 
-    {:ok, new_socket}
+    {:ok, new_socket, temporary_assigns: [statistics: []]}
+    # {:ok, new_socket}
   end
 
   def handle_info(:timer, socket) do
@@ -101,18 +102,29 @@ defmodule ScoreWeb.StatisticLive do
   end
 
   def handle_params(
-        %{"sort_by" => sort_by, "sort_order" => sort_order} = params,
+        %{"sort_by" => sort_by, "sort_order" => sort_order},
         _url,
         %{assigns: %{term: term, statistics: statistics}} = socket
       ) do
     sort_options = %{sort_by: sort_by, sort_order: sort_order}
 
+    data = optimized_data(term, statistics)
+
     new_socket =
       socket
       |> assign(:sort_options, sort_options)
-      |> assign(:statistics, Statistics.player_search(term, statistics, sort_options))
+      |> assign(:statistics, Statistics.player_search(term, data, sort_options))
 
     {:noreply, new_socket}
+  end
+
+  def handle_params(_, _, socket), do: {:noreply, socket}
+
+  defp optimized_data(term, statistics) do
+    case term do
+      "" -> Statistics.get_nfl_rushing_statistics()
+      _ -> statistics
+    end
   end
 
   defp sort_link(socket, text, sort_options, term) do
@@ -131,9 +143,7 @@ defmodule ScoreWeb.StatisticLive do
   defp toggle_sort_order("asc"), do: "desc"
   defp toggle_sort_order("desc"), do: "asc"
 
-  def handle_params(_, _, socket), do: {:noreply, socket}
-
-  def handle_event("player-search", %{"term" => term} = params, socket) do
+  def handle_event("player-search", %{"term" => term}, socket) do
     new_socket =
       socket
       |> assign(:statistics, Statistics.player_search(term))
