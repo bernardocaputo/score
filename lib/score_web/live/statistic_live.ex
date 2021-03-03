@@ -50,6 +50,10 @@ defmodule ScoreWeb.StatisticLive do
           <input placeholder="Player Name" autocomplete="off" phx-debounce="1000" type="text" name="term" value="<%= @term %>" list="matches"></input>
           <button type="submit">Search</button>
         </form>
+        <%= form_for :data, Routes.exporter_path(ScoreWeb.Endpoint, :export), fn f -> %>
+          <%= hidden_input f, :content, value: Jason.encode!(@statistics) %>
+          <%= submit "Export CSV File" %>
+        <% end %>
         <datalist id="matches">
           <%= for match <- @matches do %>
             <option value="<%= match %>"><%= match %></option>

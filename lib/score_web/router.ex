@@ -18,6 +18,7 @@ defmodule ScoreWeb.Router do
     pipe_through :browser
 
     live "/", PageLive, :index
+    post "/export", ExporterController, :export
     live "/statistics", StatisticLive
   end
 

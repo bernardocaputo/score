@@ -24,6 +24,8 @@ defmodule ScoreWeb do
       import Plug.Conn
       import ScoreWeb.Gettext
       alias ScoreWeb.Router.Helpers, as: Routes
+
+      action_fallback ScoreWeb.FallbackController
     end
   end
 
