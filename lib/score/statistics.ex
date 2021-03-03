@@ -3,7 +3,13 @@ defmodule Score.Statistics do
   This module contains statistic functions from players
   """
   @json_path "./assets/static/json/rushing.json"
-  @json_data @json_path |> File.read!() |> Jason.decode!()
+  @json_data @json_path
+             |> File.read!()
+             |> Jason.decode!()
+             |> Stream.with_index()
+             |> Enum.map(fn {x, index} ->
+               x |> Map.put("Id", index + 1)
+             end)
 
   @type statistic() :: map()
 
@@ -39,6 +45,14 @@ defmodule Score.Statistics do
     @json_data
   end
 
+  def list_nfl_rushing_statistics(paginate_options, sort_options) do
+    get_nfl_rushing_statistics()
+    |> sort_result(sort_options)
+    |> paginate_result(paginate_options)
+  end
+
+  def suggest_players(""), do: %{}
+
   def suggest_players(term) do
     term_downcased = String.downcase(term)
 
@@ -51,18 +65,19 @@ defmodule Score.Statistics do
     |> Enum.take(10)
   end
 
-  def player_search(term, data \\ get_nfl_rushing_statistics(), options \\ %{}) do
+  def player_search(term, sort_options, pagination_options) do
     term_downcased = String.downcase(term)
 
-    data
+    get_nfl_rushing_statistics()
     |> Stream.filter(fn %{"Player" => name} ->
       name_downcased = String.downcase(name)
       String.contains?(name_downcased, term_downcased)
     end)
-    |> sort_result(options)
+    |> sort_result(sort_options)
+    |> paginate_result(pagination_options)
   end
 
-  defp sort_result(result, options) when options == %{}, do: result
+  defp sort_result(result, %{sort_by: _sort_by, sort_order: ""}), do: result
 
   defp sort_result(result, %{sort_by: sort_by, sort_order: sort_order}) do
     result
@@ -70,9 +85,18 @@ defmodule Score.Statistics do
     |> Enum.sort_by(& &1["#{sort_by}"], :"#{sort_order}")
   end
 
+  defp paginate_result(data, %{page: page, per_page: per_page}) do
+    offset = (page - 1) * per_page
+
+    index = page * per_page - 1
+
+    data
+    |> Enum.slice(offset..index)
+  end
+
   defp format_data(data, "Yds") do
     data
-    |> Enum.map(fn %{"Yds" => yds} = x ->
+    |> Stream.map(fn %{"Yds" => yds} = x ->
       new_yds =
         try do
           yds |> String.replace(",", "") |> String.to_integer()
