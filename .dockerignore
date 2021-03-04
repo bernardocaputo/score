@@ -1,0 +1,6 @@
+/_build/
+/deps/
+/priv/static/
+/tmp
+.DS_Store
+/.elixir_ls/
