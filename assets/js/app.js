@@ -21,7 +21,6 @@ let Hooks = {};
 
 Hooks.InfiniteScroll = {
     mounted() {
-        console.log("Footer added to DOM!", this.el);
         this.observer = new IntersectionObserver(entries => {
             const entry = entries[0];
             if (entry.isIntersecting) {
