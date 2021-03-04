@@ -2,8 +2,9 @@ defmodule Score.Statistics do
   @moduledoc """
   This module contains statistic functions from players
   """
-  @json_path "./assets/static/json/rushing.json"
-  @json_data @json_path
+  @file_path "./assets/static/json/rushing.json"
+  @external_resource @file_path
+  @json_data @file_path
              |> File.read!()
              |> Jason.decode!()
              |> Stream.with_index()

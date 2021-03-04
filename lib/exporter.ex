@@ -30,7 +30,8 @@ defmodule Score.Exporter do
   @doc """
   Return the content that user want to export (filtered or complete)
   """
-  @spec verify_content_to_be_exported(encoded_content, String.t(), encoded_sort_options) :: {:ok, [map()]}
+  @spec verify_content_to_be_exported(encoded_content, String.t(), encoded_sort_options) ::
+          {:ok, [map()]}
   def verify_content_to_be_exported(content, term, sort_options) do
     content_to_be_exported =
       case term do
