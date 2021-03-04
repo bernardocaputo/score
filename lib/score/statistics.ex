@@ -13,6 +13,8 @@ defmodule Score.Statistics do
              end)
 
   @type statistic() :: map()
+  @type sort_options() :: map()
+  @type pagination_options() :: map()
 
   @doc """
   Return NFL players statistics
@@ -46,13 +48,21 @@ defmodule Score.Statistics do
     @json_data
   end
 
-  def list_nfl_rushing_statistics(paginate_options, sort_options) do
+  @doc """
+  Return a paginated and sorted list of NFL players statistics
+  """
+  @spec list_nfl_rushing_statistics(pagination_options(), sort_options()) :: list(statistic())
+  def list_nfl_rushing_statistics(pagination_options, sort_options) do
     get_nfl_rushing_statistics()
     |> sort_result(sort_options)
-    |> paginate_result(paginate_options)
+    |> paginate_result(pagination_options)
   end
 
-  def suggest_players(""), do: %{}
+  @doc """
+  Suggest player's name when filtering
+  """
+  @spec suggest_players(String.t()) :: list(String.t())
+  def suggest_players(""), do: []
 
   def suggest_players(term) do
     term_downcased = String.downcase(term)
@@ -66,6 +76,10 @@ defmodule Score.Statistics do
     |> Enum.take(10)
   end
 
+  @doc """
+  Filter statistics by given term
+  """
+  @spec player_search(String.t(), sort_options(), pagination_options())  :: list(statistic())
   def player_search(term, sort_options, pagination_options) do
     term_downcased = String.downcase(term)
 
@@ -95,9 +109,8 @@ defmodule Score.Statistics do
   defp _sort_result(result, %{sort_by: sort_by = "Lng", sort_order: sort_order}) do
     result
     |> Enum.sort_by(& &1[sort_by] |> Tuple.to_list |> List.first, :"#{sort_order}")
-    |> Enum.map(fn %{^sort_by => {int, string}} = x ->
-      x
-      |> Map.put(sort_by, Integer.to_string(int) <> string)
+    |> Enum.map(fn %{^sort_by => {int, string}} = statistic ->
+      Map.put(statistic, sort_by, Integer.to_string(int) <> string)
     end)
 
 
@@ -116,7 +129,7 @@ defmodule Score.Statistics do
 
   defp format_data(data, "Yds") do
     data
-    |> Stream.map(fn %{"Yds" => yds} = x ->
+    |> Stream.map(fn %{"Yds" => yds} = statistic ->
       new_yds =
         try do
           yds |> String.replace(",", "") |> String.to_integer()
@@ -125,11 +138,10 @@ defmodule Score.Statistics do
             yds
         end
 
-      Map.put(x, "Yds", new_yds)
+      Map.put(statistic, "Yds", new_yds)
     end)
   end
 
-  # TO DO How to handle Lng sort?
   defp format_data(data, "Lng") do
     data
     |> Stream.map(fn %{"Lng" => lng} = x ->
