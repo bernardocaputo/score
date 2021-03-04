@@ -82,10 +82,25 @@ defmodule Score.Statistics do
 
   defp sort_result(result, %{sort_by: _sort_by, sort_order: ""}), do: result
 
-  defp sort_result(result, %{sort_by: sort_by, sort_order: sort_order}) do
+  defp sort_result(result, %{sort_by: sort_by} = sort_options) do
     result
     |> format_data(sort_by)
-    |> Enum.sort_by(& &1["#{sort_by}"], :"#{sort_order}")
+    |> _sort_result(sort_options)
+  end
+
+  defp _sort_result(result, %{sort_by: sort_by, sort_order: sort_order}) when sort_by in ["Yds", "TD"] do
+    Enum.sort_by(result, & &1["#{sort_by}"], :"#{sort_order}")
+  end
+
+  defp _sort_result(result, %{sort_by: sort_by = "Lng", sort_order: sort_order}) do
+    result
+    |> Enum.sort_by(& &1[sort_by] |> Tuple.to_list |> List.first, :"#{sort_order}")
+    |> Enum.map(fn %{^sort_by => {int, string}} = x ->
+      x
+      |> Map.put(sort_by, Integer.to_string(int) <> string)
+    end)
+
+
   end
 
   defp paginate_result(data, options) when options == %{}, do: data
@@ -115,8 +130,21 @@ defmodule Score.Statistics do
   end
 
   # TO DO How to handle Lng sort?
-  # defp format_data(data, "Lng") do
-  # end
+  defp format_data(data, "Lng") do
+    data
+    |> Stream.map(fn %{"Lng" => lng} = x ->
+      new_lng =
+        try do
+          lng |> Integer.to_string()
+        rescue
+          _ ->
+            lng
+        end
+        |> Integer.parse()
+
+      Map.put(x, "Lng", new_lng)
+    end)
+  end
 
   defp format_data(data, _), do: data
 end
