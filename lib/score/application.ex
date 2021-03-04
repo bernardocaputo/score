@@ -8,7 +8,7 @@ defmodule Score.Application do
   def start(_type, _args) do
     children = [
       # Start the Ecto repository
-      Score.Repo,
+      # Score.Repo,
       # Start the Telemetry supervisor
       ScoreWeb.Telemetry,
       # Start the PubSub system
