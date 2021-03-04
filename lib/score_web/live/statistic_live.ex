@@ -52,6 +52,8 @@ defmodule ScoreWeb.StatisticLive do
         </form>
         <%= form_for :data, Routes.exporter_path(ScoreWeb.Endpoint, :export), fn f -> %>
           <%= hidden_input f, :content, value: Jason.encode!(@statistics) %>
+          <%= hidden_input f, :term, value: @term %>
+          <%= hidden_input f, :sort_options, value: Jason.encode!(@sort_options) %>
           <%= submit "Export CSV File" %>
         <% end %>
         <datalist id="matches">

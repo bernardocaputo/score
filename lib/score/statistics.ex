@@ -77,6 +77,8 @@ defmodule Score.Statistics do
     |> paginate_result(pagination_options)
   end
 
+  defp sort_result(result, map) when map == %{}, do: result
+
   defp sort_result(result, %{sort_by: _sort_by, sort_order: ""}), do: result
 
   defp sort_result(result, %{sort_by: sort_by, sort_order: sort_order}) do
@@ -84,6 +86,8 @@ defmodule Score.Statistics do
     |> format_data(sort_by)
     |> Enum.sort_by(& &1["#{sort_by}"], :"#{sort_order}")
   end
+
+  defp paginate_result(data, options) when options == %{}, do: data
 
   defp paginate_result(data, %{page: page, per_page: per_page}) do
     offset = (page - 1) * per_page
