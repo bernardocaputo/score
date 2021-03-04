@@ -15,7 +15,7 @@ RUN mix deps.get && mix deps.compile
 COPY ./assets/package.json ./assets/package.json
 
 RUN apt-get -yq install curl gnupg ca-certificates \
-    && curl -L https://deb.nodesource.com/setup_12.x | bash \
+    && curl -L https://deb.nodesource.com/setup_14.x | bash \
     && apt-get install -yq \
     nodejs && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

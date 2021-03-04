@@ -1,18 +1,42 @@
-# Score
+## Score APP
 
-To start your Phoenix server:
+This application contains a NFL Rushing Statistics Table where you can sort by Total Rushing Yards, Longest Rush and Total Rushing Touchdowns
 
-  * Install dependencies with `mix deps.get`
-  * Create and migrate your database with `mix ecto.setup`
-  * Install Node.js dependencies with `npm install` inside the `assets` directory
-  * Start Phoenix endpoint with `mix phx.server`
+## System Requirements:
+  - Docker
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+## Getting Started
+  - Clone this project to your machine
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+```
+git clone git@github.com:bernardocaputo/score.git
+```
+
+  - With docker initialized, build the image in your computer by running: 
+```
+cd score
+docker build -t score 
+```
+
+  - Finally run the container by typing:
+```
+docker run --rm -it -p 4000:4000 score
+```
+
+  - Now the application will be running at:
+## [http://localhost:4000/statistics](http://localhost:4000/statistics)
+
+## Features (requested)
+    - Filter list by player name
+    - Infinite Scroll
+    - Download CSV ordenated by current sort order and filter
+    - Sort by Total Rushing Yards, Longest Rush or Total Rushing Touchdowns
+    
+## Extra Features (study purpose only)
+    - Time
+    - Dropdown with player name's suggestion
 
 ## Learn more
-
   * Official website: https://www.phoenixframework.org/
   * Guides: https://hexdocs.pm/phoenix/overview.html
   * Docs: https://hexdocs.pm/phoenix
