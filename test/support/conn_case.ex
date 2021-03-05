@@ -16,7 +16,8 @@ defmodule ScoreWeb.ConnCase do
   """
 
   use ExUnit.CaseTemplate
-  alias Ecto.Adapters.SQL.Sandbox
+
+  # alias Ecto.Adapters.SQL.Sandbox
 
   using do
     quote do
@@ -32,13 +33,7 @@ defmodule ScoreWeb.ConnCase do
     end
   end
 
-  setup tags do
-    :ok = Sandbox.checkout(Score.Repo)
-
-    unless tags[:async] do
-      Sandbox.mode(Score.Repo, {:shared, self()})
-    end
-
+  setup do
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 end

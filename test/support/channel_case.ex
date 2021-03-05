@@ -16,7 +16,6 @@ defmodule ScoreWeb.ChannelCase do
   """
 
   use ExUnit.CaseTemplate
-  alias Ecto.Adapters.SQL.Sandbox
 
   using do
     quote do
@@ -27,15 +26,5 @@ defmodule ScoreWeb.ChannelCase do
       # The default endpoint for testing
       @endpoint ScoreWeb.Endpoint
     end
-  end
-
-  setup tags do
-    :ok = Sandbox.checkout(Score.Repo)
-
-    unless tags[:async] do
-      Sandbox.mode(Score.Repo, {:shared, self()})
-    end
-
-    :ok
   end
 end

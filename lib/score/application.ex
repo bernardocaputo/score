@@ -10,7 +10,6 @@ defmodule Score.Application do
       # Start the Ecto repository
       # Score.Repo,
       # Start the Telemetry supervisor
-      ScoreWeb.Telemetry,
       # Start the PubSub system
       {Phoenix.PubSub, name: Score.PubSub},
       # Start the Endpoint (http/https)
