@@ -2,6 +2,10 @@
 
 This application contains a NFL Rushing Statistics Table where you can sort by Total Rushing Yards, Longest Rush and Total Rushing Touchdowns
 
+## Used technologies
+  - Elixir
+  - Phoenix LiveView
+
 ## System Requirements:
   - Docker
 
