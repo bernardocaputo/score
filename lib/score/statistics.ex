@@ -56,6 +56,7 @@ defmodule Score.Statistics do
     get_nfl_rushing_statistics()
     |> sort_result(sort_options)
     |> paginate_result(pagination_options)
+    |> Enum.into([])
   end
 
   @doc """
@@ -90,6 +91,7 @@ defmodule Score.Statistics do
     end)
     |> sort_result(sort_options)
     |> paginate_result(pagination_options)
+    |> Enum.into([])
   end
 
   defp sort_result(result, map) when map == %{}, do: result
@@ -110,7 +112,7 @@ defmodule Score.Statistics do
   defp _sort_result(result, %{sort_by: sort_by = "Lng", sort_order: sort_order}) do
     result
     |> Enum.sort_by(&(&1[sort_by] |> Tuple.to_list() |> List.first()), :"#{sort_order}")
-    |> Enum.map(fn %{^sort_by => {int, string}} = statistic ->
+    |> Stream.map(fn %{^sort_by => {int, string}} = statistic ->
       Map.put(statistic, sort_by, Integer.to_string(int) <> string)
     end)
   end
@@ -129,14 +131,7 @@ defmodule Score.Statistics do
   defp format_data(data, "Yds") do
     data
     |> Stream.map(fn %{"Yds" => yds} = statistic ->
-      new_yds =
-        try do
-          yds |> String.replace(",", "") |> String.to_integer()
-        rescue
-          _ ->
-            yds
-        end
-
+      new_yds = string_to_integer(yds)
       Map.put(statistic, "Yds", new_yds)
     end)
   end
@@ -144,18 +139,29 @@ defmodule Score.Statistics do
   defp format_data(data, "Lng") do
     data
     |> Stream.map(fn %{"Lng" => lng} = x ->
-      new_lng =
-        try do
-          lng |> Integer.to_string()
-        rescue
-          _ ->
-            lng
-        end
-        |> Integer.parse()
-
+      new_lng = lng |> integer_to_string() |> Integer.parse()
       Map.put(x, "Lng", new_lng)
     end)
   end
 
   defp format_data(data, _), do: data
+
+  defp string_to_integer(maybe_string) do
+    try do
+      maybe_string
+      |> String.replace(",", "")
+      |> String.to_integer()
+    rescue
+      _ -> maybe_string
+    end
+  end
+
+  defp integer_to_string(maybe_integer) do
+    try do
+      maybe_integer
+      |> Integer.to_string()
+    rescue
+      _ -> maybe_integer
+    end
+  end
 end
