@@ -147,21 +147,17 @@ defmodule Score.Statistics do
   defp format_data(data, _), do: data
 
   defp string_to_integer(maybe_string) do
-    try do
-      maybe_string
-      |> String.replace(",", "")
-      |> String.to_integer()
-    rescue
-      _ -> maybe_string
-    end
+    maybe_string
+    |> String.replace(",", "")
+    |> String.to_integer()
+  rescue
+    _ -> maybe_string
   end
 
   defp integer_to_string(maybe_integer) do
-    try do
-      maybe_integer
-      |> Integer.to_string()
-    rescue
-      _ -> maybe_integer
-    end
+    maybe_integer
+    |> Integer.to_string()
+  rescue
+    _ -> maybe_integer
   end
 end

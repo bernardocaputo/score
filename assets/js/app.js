@@ -24,7 +24,6 @@ Hooks.InfiniteScroll = {
         this.observer = new IntersectionObserver(entries => {
             const entry = entries[0];
             if (entry.isIntersecting) {
-                console.log("Footer is visible!");
                 this.pushEvent("load-more");
             }
         });

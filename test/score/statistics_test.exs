@@ -36,7 +36,7 @@ defmodule Score.StatisticsTest do
     end
 
     test "should sort list - TD" do
-      {min_TD, max_TD} = Statistics.get_nfl_rushing_statistics() |> get_min_max_from_key("TD")
+      {min_td, max_td} = Statistics.get_nfl_rushing_statistics() |> get_min_max_from_key("TD")
 
       statistics_max =
         Statistics.list_nfl_rushing_statistics(%{}, %{sort_by: "TD", sort_order: "desc"})
@@ -46,12 +46,12 @@ defmodule Score.StatisticsTest do
         Statistics.list_nfl_rushing_statistics(%{}, %{sort_by: "TD", sort_order: "asc"})
         |> List.first()
 
-      assert statistics_max["TD"] == max_TD
-      assert statistics_min["TD"] == min_TD
+      assert statistics_max["TD"] == max_td
+      assert statistics_min["TD"] == min_td
     end
 
     test "should sort list - Lng" do
-      {min_Lng, max_Lng} = Statistics.get_nfl_rushing_statistics() |> get_min_max_from_key("Lng")
+      {min_lng, max_lng} = Statistics.get_nfl_rushing_statistics() |> get_min_max_from_key("Lng")
 
       {statistics_max, _} =
         Statistics.list_nfl_rushing_statistics(%{}, %{sort_by: "Lng", sort_order: "desc"})
@@ -65,8 +65,8 @@ defmodule Score.StatisticsTest do
         |> Map.get("Lng")
         |> Integer.parse()
 
-      assert statistics_max == max_Lng
-      assert statistics_min == min_Lng
+      assert statistics_max == max_lng
+      assert statistics_min == min_lng
     end
   end
 
@@ -131,21 +131,17 @@ defmodule Score.StatisticsTest do
   end
 
   defp string_to_integer(maybe_string) do
-    try do
-      maybe_string
-      |> String.replace(",", "")
-      |> String.to_integer()
-    rescue
-      _ -> maybe_string
-    end
+    maybe_string
+    |> String.replace(",", "")
+    |> String.to_integer()
+  rescue
+    _ -> maybe_string
   end
 
   defp integer_to_string(maybe_integer) do
-    try do
-      maybe_integer
-      |> Integer.to_string()
-    rescue
-      _ -> maybe_integer
-    end
+    maybe_integer
+    |> Integer.to_string()
+  rescue
+    _ -> maybe_integer
   end
 end
