@@ -118,9 +118,10 @@ defmodule ScoreWeb.StatisticLive do
     {:noreply, new_socket}
   end
 
-  def handle_event("player-search", %{"term" => ""}, socket) do
+  def handle_event("player-search", %{"term" => term = ""}, socket) do
     new_socket =
       socket
+      |> assign(:term, term)
       |> clean_url()
 
     {:noreply, new_socket}
