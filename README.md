@@ -36,6 +36,13 @@ docker run --rm -it -p 4000:4000 score
     - Time
     - Dropdown with player name's suggestion
 
+## Tests
+    - To run tests, run the following command:
+    ```
+    mix test
+    ```
+
+
 ## Learn more
   * Official website: https://www.phoenixframework.org/
   * Guides: https://hexdocs.pm/phoenix/overview.html
