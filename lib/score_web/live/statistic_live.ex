@@ -41,78 +41,6 @@ defmodule ScoreWeb.StatisticLive do
     Time.to_string(time)
   end
 
-  def render(assigns) do
-    ~L"""
-      <h1> NFL Players Statistics </h1>
-        <p> <%= @timer %> </p>
-        <form autocomplete="off" phx-submit="player-search" phx-change="suggest-player">
-          <span>Filter By Player</span>
-          <input placeholder="Player Name" autocomplete="off" phx-debounce="1000" type="text" name="term" value="<%= @term %>" list="matches"></input>
-          <button type="submit">Search</button>
-        </form>
-        <%= form_for :data, Routes.exporter_path(ScoreWeb.Endpoint, :export), fn f -> %>
-          <%= hidden_input f, :content, value: Jason.encode!(@statistics) %>
-          <%= hidden_input f, :term, value: @term %>
-          <%= hidden_input f, :sort_options, value: Jason.encode!(@sort_options) %>
-          <%= submit "Export CSV File" %>
-        <% end %>
-        <datalist id="matches">
-          <%= for match <- @matches do %>
-            <option value="<%= match %>"><%= match %></option>
-          <% end %>
-        </datalist>
-        <table>
-        <thead>
-          <tr>
-            <th>Id</th>
-            <th>Player</th>
-            <th>Team</th>
-            <th>Pos</th>
-            <th>Att</th>
-            <th>Att/G</th>
-            <th>Avg</th>
-            <th>
-              <%= sort_link(@socket, "Yds", %{@sort_options | sort_by: "Yds"}, @term, @page, @per_page) %>
-            </th>
-            <th>Yds/G</th>
-            <th>
-              <%= sort_link(@socket, "TD", %{@sort_options | sort_by: "TD"}, @term, @page, @per_page) %>
-            </th>
-            <th>
-               <%= sort_link(@socket, "Lng", %{@sort_options | sort_by: "Lng"}, @term, @page, @per_page) %>
-            <th>1st</th>
-            <th>20</th>
-            <th>40</th>
-            <th>FUM</th>
-          </tr>
-        </thead>
-        <tbody id="statistics" phx-update="replace">
-          <%= for statistic <- @statistics do %>
-            <tr class="active-row" id='<%= statistic["Id"] %>'>
-              <td> <%= statistic["Id"] %> </td>
-              <td> <%= statistic["Player"] %> </td>
-              <td> <%= statistic["Team"] %> </td>
-              <td> <%= statistic["Pos"] %> </td>
-              <td> <%= statistic["Att"] %> </td>
-              <td> <%= statistic["Att/G"] %> </td>
-              <td> <%= statistic["Avg"] %> </td>
-              <td> <%= statistic["Yds"] %> </td>
-              <td> <%= statistic["Yds/G"] %> </td>
-              <td> <%= statistic["TD"] %> </td>
-              <td> <%= statistic["Lng"] %> </td>
-              <td> <%= statistic["1st%"] %> </td>
-              <td> <%= statistic["1st"] %> </td>
-              <td> <%= statistic["20+"] %> </td>
-              <td> <%= statistic["40+"] %> </td>
-              <td> <%= statistic["FUM"] %> </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-      <div id="footer" phx-hook="InfiniteScroll" />
-    """
-  end
-
   def handle_params(params, _url, socket) do
     sort_options = %{
       sort_by: params["sort_by"] || "",
@@ -129,8 +57,7 @@ defmodule ScoreWeb.StatisticLive do
         sort_options: sort_options,
         page: pagination_options.page,
         per_page: pagination_options.per_page,
-        statistics: statistics,
-        term: params["term"]
+        statistics: statistics
       )
 
     {:noreply, new_socket}
