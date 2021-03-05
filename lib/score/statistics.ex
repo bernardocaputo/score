@@ -79,7 +79,7 @@ defmodule Score.Statistics do
   @doc """
   Filter statistics by given term
   """
-  @spec player_search(String.t(), sort_options(), pagination_options())  :: list(statistic())
+  @spec player_search(String.t(), sort_options(), pagination_options()) :: list(statistic())
   def player_search(term, sort_options, pagination_options) do
     term_downcased = String.downcase(term)
 
@@ -102,18 +102,17 @@ defmodule Score.Statistics do
     |> _sort_result(sort_options)
   end
 
-  defp _sort_result(result, %{sort_by: sort_by, sort_order: sort_order}) when sort_by in ["Yds", "TD"] do
+  defp _sort_result(result, %{sort_by: sort_by, sort_order: sort_order})
+       when sort_by in ["Yds", "TD"] do
     Enum.sort_by(result, & &1["#{sort_by}"], :"#{sort_order}")
   end
 
   defp _sort_result(result, %{sort_by: sort_by = "Lng", sort_order: sort_order}) do
     result
-    |> Enum.sort_by(& &1[sort_by] |> Tuple.to_list |> List.first, :"#{sort_order}")
+    |> Enum.sort_by(&(&1[sort_by] |> Tuple.to_list() |> List.first()), :"#{sort_order}")
     |> Enum.map(fn %{^sort_by => {int, string}} = statistic ->
       Map.put(statistic, sort_by, Integer.to_string(int) <> string)
     end)
-
-
   end
 
   defp paginate_result(data, options) when options == %{}, do: data

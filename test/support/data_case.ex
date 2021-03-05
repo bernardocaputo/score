@@ -16,27 +16,11 @@ defmodule Score.DataCase do
 
   use ExUnit.CaseTemplate
 
-  alias Ecto.Adapters.SQL.Sandbox
-
   using do
     quote do
-      alias Score.Repo
-
-      import Ecto
       import Ecto.Changeset
-      import Ecto.Query
       import Score.DataCase
     end
-  end
-
-  setup tags do
-    :ok = Sandbox.checkout(Score.Repo)
-
-    unless tags[:async] do
-      Sandbox.mode(Score.Repo, {:shared, self()})
-    end
-
-    :ok
   end
 
   @doc """
