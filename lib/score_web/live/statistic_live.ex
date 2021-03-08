@@ -5,8 +5,8 @@ defmodule ScoreWeb.StatisticLive do
   use ScoreWeb, :live_view
   alias Score.Statistics
 
-  @default_per_page 20
-  @default_page 1
+  @default_per_page "20"
+  @default_page "1"
 
   def mount(_params, _session, socket) do
     if connected?(socket) do
@@ -27,7 +27,7 @@ defmodule ScoreWeb.StatisticLive do
         timer: get_time()
       )
 
-    {:ok, new_socket}
+    {:ok, new_socket, temporary_assigns: [statistics: []]}
   end
 
   def handle_info(:timer, socket) do
@@ -47,9 +47,12 @@ defmodule ScoreWeb.StatisticLive do
       sort_order: params["sort_order"] || ""
     }
 
-    pagination_options = %{page: socket.assigns.page, per_page: socket.assigns.per_page}
+    pagination_options = %{
+      page: params["page"] || @default_page,
+      per_page: params["per_page"] || @default_per_page
+    }
 
-    statistics = statistics_to_use(params, sort_options, pagination_options)
+    term = params["term"] || socket.assigns.term
 
     new_socket =
       socket
@@ -57,14 +60,15 @@ defmodule ScoreWeb.StatisticLive do
         sort_options: sort_options,
         page: pagination_options.page,
         per_page: pagination_options.per_page,
-        statistics: statistics
+        term: term,
+        statistics: statistics_to_use(term, sort_options, pagination_options)
       )
 
     {:noreply, new_socket}
   end
 
-  defp statistics_to_use(params, sort_options, pagination_options) do
-    case params["term"] do
+  defp statistics_to_use(term, sort_options, pagination_options) do
+    case term do
       term when term in ["", nil] ->
         Statistics.list_nfl_rushing_statistics(pagination_options, sort_options)
 
@@ -95,6 +99,14 @@ defmodule ScoreWeb.StatisticLive do
     end
   end
 
+  defp update_page(page_string, default_page_value) do
+    default_per_page = String.to_integer(default_page_value)
+
+    page_string
+    |> String.to_integer()
+    |> Kernel.+(default_per_page)
+  end
+
   def handle_event("load-more", _params, socket) do
     sort_options = %{
       sort_by: socket.assigns.sort_options.sort_by,
@@ -103,16 +115,12 @@ defmodule ScoreWeb.StatisticLive do
 
     pagination_options = %{page: socket.assigns.page, per_page: socket.assigns.per_page}
 
+    statistics = Statistics.list_nfl_rushing_statistics(pagination_options, sort_options)
+
     new_socket =
       socket
-      |> update(:per_page, &(&1 + @default_per_page))
-      |> assign(
-        statistics:
-          Statistics.list_nfl_rushing_statistics(
-            pagination_options,
-            sort_options
-          )
-      )
+      |> update(:per_page, &update_page(&1, @default_per_page))
+      |> assign(statistics: statistics)
       |> add_params_to_url()
 
     {:noreply, new_socket}
@@ -121,7 +129,7 @@ defmodule ScoreWeb.StatisticLive do
   def handle_event("player-search", %{"term" => term = ""}, socket) do
     new_socket =
       socket
-      |> assign(:term, term)
+      |> assign(term: term)
       |> clean_url()
 
     {:noreply, new_socket}
@@ -130,7 +138,7 @@ defmodule ScoreWeb.StatisticLive do
   def handle_event("player-search", %{"term" => term}, socket) do
     new_socket =
       socket
-      |> assign(:term, term)
+      |> assign(term: term, page: @default_page, per_page: @default_per_page)
       |> add_params_to_url()
 
     {:noreply, new_socket}

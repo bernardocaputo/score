@@ -13,8 +13,8 @@ defmodule Score.StatisticsTest do
 
   describe "list_nfl_rushing_statistics/2" do
     test "should paginate list" do
-      statistics_one = Statistics.list_nfl_rushing_statistics(%{page: 1, per_page: 2}, %{})
-      statistics_two = Statistics.list_nfl_rushing_statistics(%{page: 2, per_page: 2}, %{})
+      statistics_one = Statistics.list_nfl_rushing_statistics(%{page: "1", per_page: "2"}, %{})
+      statistics_two = Statistics.list_nfl_rushing_statistics(%{page: "2", per_page: "2"}, %{})
       assert length(statistics_one) == 2
       assert length(statistics_two) == 2
       assert statistics_one != statistics_two

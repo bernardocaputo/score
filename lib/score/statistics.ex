@@ -120,6 +120,9 @@ defmodule Score.Statistics do
   defp paginate_result(data, options) when options == %{}, do: data
 
   defp paginate_result(data, %{page: page, per_page: per_page}) do
+    page = String.to_integer(page)
+    per_page = String.to_integer(per_page)
+
     offset = (page - 1) * per_page
 
     index = page * per_page - 1
