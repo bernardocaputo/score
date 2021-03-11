@@ -45,7 +45,7 @@ git clone git@github.com:bernardocaputo/score.git
   - With docker initialized, build the image in your computer by running: 
 ```
 cd score
-docker build -t score 
+docker build -t score .
 ```
 
   - Finally run the container by typing:
